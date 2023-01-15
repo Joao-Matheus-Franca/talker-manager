@@ -10,6 +10,19 @@ const TALKER_NOT_FOUND = {
   message: 'Pessoa palestrante não encontrada',
 };
 
+const EMAIL_NOT_FOUND = {
+  message: 'O campo "email" é obrigatório',
+};
+const INVALID_EMAIL = {
+  message: 'O "email" deve ter o formato "email@email.com"',
+};
+const PASSWORD_NOT_FOUND = {
+  message: 'O campo "password" é obrigatório',
+};
+const INVALID_PASSWORD = {
+  message: 'O "password" deve ter pelo menos 6 caracteres',
+};
+
 // A seguinte função teve a lógica obtida com o auxilio do seguinte link: 
 // https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
 const generateToken = () => {
@@ -49,10 +62,21 @@ app.get('/talker/:id', async (req, res) => {
 
 app.post('/login', (req, res) => {
   const { body } = req;
-  // const haveEmail = body.email.length;
-  // const havePassword = body.password.length;
-  console.log(body);
-  
+  const { email, password } = body;
+  if (!email) {
+    return res.status(400).json(EMAIL_NOT_FOUND);
+  }
+  const validateEmail = email.toLowerCase()
+  .match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+  if (!validateEmail) {
+    return res.status(400).json(INVALID_EMAIL);
+  }
+  if (!password) {
+    return res.status(400).json(PASSWORD_NOT_FOUND);
+  }
+  if (password.length < 6) {
+    return res.status(400).json(INVALID_PASSWORD);
+  }
   const token = generateToken();
   res.status(200).json({ token });
 });
