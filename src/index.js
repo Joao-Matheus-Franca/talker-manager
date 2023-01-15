@@ -13,10 +13,10 @@ app.get('/', (_request, response) => {
 
 app.get('/talker', async (req, res) => {
   try {
-    const talkers = await fs.readFile('src/talker.json', 'utf-8')
+    const talkers = await fs.readFile('src/talker.json', 'utf-8');
     res.status(200).json(JSON.parse(talkers));
   } catch (error) {
-    console.error(error)
+    console.error(error);
   }
 });
 
