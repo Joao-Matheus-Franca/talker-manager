@@ -17,8 +17,8 @@ const generateToken = () => {
   const charOptions = 'QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm123456789';
   const tokenLength = 16;
   for (let i = 0; i < tokenLength; i += 1) {
-    token += charOptions[Math.floor(Math.random() * (charOptions.length))]
-  };
+    token += charOptions[Math.floor(Math.random() * (charOptions.length))];
+  }
   return token;
 };
 
@@ -48,9 +48,13 @@ app.get('/talker/:id', async (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  const body = req.body;
+  const { body } = req;
+  // const haveEmail = body.email.length;
+  // const havePassword = body.password.length;
+  console.log(body);
+  
   const token = generateToken();
-  res.status(200).json({ token: token });
+  res.status(200).json({ token });
 });
 
 app.listen(PORT, () => {
