@@ -185,6 +185,18 @@ app.put('/talker/:id', async (req, res) => {
   } catch (error) { console.error(error); }
 });
 
+app.delete('/talker/:id', async (req, res) => {
+  const { headers: { authorization }, params: { id } } = req;
+  try {
+    validateToken(authorization, res);
+    const data = await fs.readFile(path, format);
+    const talkers = JSON.parse(data);
+    const newData = talkers.filter((t) => t.id !== Number(id));
+    await fs.writeFile(path, JSON.stringify(newData));
+    return res.status(204).send();
+  } catch (error) { console.error(error); }
+});
+
 app.listen(PORT, () => {
   console.log('Online');
 });
