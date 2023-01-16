@@ -4,6 +4,9 @@ const fs = require('fs').promises;
 const app = express();
 app.use(express.json());
 
+const path = 'src/talker.json';
+const format = 'utf-8';
+
 const HTTP_OK_STATUS = 200;
 const PORT = '3000';
 const TALKER_NOT_FOUND = {
@@ -138,7 +141,7 @@ const validateTalk = (talk, res) => {
 };
 const validateRate = (talk, res) => {
   const { rate } = talk;
-  if (!rate) return res.status(400).json(RATE_NOT_FOUND);
+  if (rate === undefined) return res.status(400).json(RATE_NOT_FOUND);
   if (rate < 1 || rate > 5) return res.status(400).json(INVALID_RATE);
   if (!Number.isInteger(rate)) return res.status(400).json(INVALID_RATE);
 };
@@ -152,14 +155,34 @@ app.post('/talker', async (req, res) => {
     validateAge(age, res);
     validateTalk(talk, res);
     validateRate(talk, res);
-    const data = await fs.readFile('src/talker.json', 'utf-8');
+    const data = await fs.readFile(path, format);
     const talkers = JSON.parse(data);
     const newData = [...talkers, { name, id: talkers.length + 1, age, talk }];
-    await fs.writeFile('src/talker.json', JSON.stringify(newData));
+    await fs.writeFile(path, JSON.stringify(newData));
     return res.status(201).json({ name, id: talkers.length + 1, age, talk });
   } catch (error) {
     console.error(error);
   }
+});
+
+app.put('/talker/:id', async (req, res) => {
+  const { headers: { authorization }, params: { id } } = req;
+  const { body: { name, age, talk } } = req;
+  try {
+    validateToken(authorization, res);
+    validateName(name, res);
+    validateAge(age, res);
+    validateTalk(talk, res);
+    validateRate(talk, res);
+    const data = await fs.readFile(path, format);
+    const talkers = JSON.parse(data);
+    const newData = talkers.map((t) => {
+      if (t.id === Number(id)) return { name, id: Number(id), age, talk };
+      return t;
+    }); 
+    await fs.writeFile(path, JSON.stringify(newData));
+    return res.status(200).json({ name, id: Number(id), age, talk });
+  } catch (error) { console.error(error); }
 });
 
 app.listen(PORT, () => {
